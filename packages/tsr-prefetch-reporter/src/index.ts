@@ -7,6 +7,9 @@ import type {
   NavigationCompleteEvent
 } from "./types";
 
+export { TrackedLink } from "./tracked-link";
+export type { TrackedLinkProps } from "./tracked-link";
+
 export type { ReporterOptions, PrefetchTrigger } from "./types";
 
 type MinimalRouter = {

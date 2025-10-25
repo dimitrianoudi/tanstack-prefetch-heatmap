@@ -1,52 +1,64 @@
 import * as React from "react";
-import { Link } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 
 type PrefetchStatus = "pending" | "hit" | "waste" | undefined;
 
-type TrackedLinkProps = React.ComponentProps<typeof Link> & {
-  /** Time window (ms) for a prefetch to be considered "hot" before turning into "waste". */
+export type TrackedLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+  /** Destination (same as TanStack Router `to`) */
+  to: any;
+  /** Optional router pieces (kept loose for maximal compatibility) */
+  params?: any;
+  search?: any;
+  hash?: string;
+  from?: any;
+  replace?: boolean;
+  /** Time window (ms) before pending turns into waste */
   ttlMs?: number;
-  /** Which interactions count as "intent" to prefetch. */
+  /** Which interactions count as “intent” */
   intent?: Array<"hover" | "focus" | "touch">;
-  /** Optional hook for your analytics/reporter bus. */
+  /** Optional analytics hook */
   onPrefetchIntent?: (href: string) => void;
 };
 
 export function TrackedLink(props: TrackedLinkProps) {
   const {
+    to, params, search, hash, from, replace,
     ttlMs = 15000,
     intent = ["hover", "focus", "touch"],
     onPrefetchIntent,
-    onPointerEnter,
-    onFocus,
-    onPointerDown,
-    onClick,
-    to,
+    className, children, target, rel,
+    onMouseEnter, onFocus, onTouchStart, onClick,
     ...rest
   } = props;
+
+  const router = useRouter();
+
+  // Build an href that matches the future navigation (types kept lax on purpose)
+  const { href } = router.buildLocation({
+    to: to as any,
+    params: params as any,
+    search: search as any,
+    hash,
+    from,
+  } as any);
 
   const [status, setStatus] = React.useState<PrefetchStatus>(undefined);
   const timer = React.useRef<number | null>(null);
   const clicked = React.useRef(false);
 
-  const href = typeof to === "string" ? to : (to as any)?.toString?.() ?? "";
-
   const startPending = React.useCallback(() => {
     setStatus("pending");
     clicked.current = false;
-
-    // notify reporter (optional)
-    if (onPrefetchIntent) onPrefetchIntent(href);
-
+    onPrefetchIntent?.(href);
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
       if (!clicked.current) setStatus("waste");
     }, ttlMs);
   }, [href, onPrefetchIntent, ttlMs]);
 
-  const handlePointerEnter: React.PointerEventHandler<HTMLAnchorElement> = (e) => {
+  const handleMouseEnter: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
     if (intent.includes("hover")) startPending();
-    onPointerEnter?.(e);
+    onMouseEnter?.(e);
   };
 
   const handleFocus: React.FocusEventHandler<HTMLAnchorElement> = (e) => {
@@ -54,37 +66,57 @@ export function TrackedLink(props: TrackedLinkProps) {
     onFocus?.(e);
   };
 
-  const handlePointerDown: React.PointerEventHandler<HTMLAnchorElement> = (e) => {
-    // Touch users won’t hover; treat first touch as intent
-    if (intent.includes("touch")) {
-      // only kick off if we’re not already pending
-      if (status !== "pending") startPending();
-    }
-    onPointerDown?.(e);
+  const handleTouchStart: React.TouchEventHandler<HTMLAnchorElement> = (e) => {
+    if (intent.includes("touch") && status !== "pending") startPending();
+    onTouchStart?.(e);
   };
 
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
+    // Respect new-tab/window and modified-clicks
+    if (
+      e.defaultPrevented ||
+      e.metaKey || e.ctrlKey || e.shiftKey || e.altKey ||
+      target === "_blank"
+    ) {
+      onClick?.(e);
+      return;
+    }
+
+    e.preventDefault();
     clicked.current = true;
     if (timer.current) window.clearTimeout(timer.current);
     setStatus("hit");
+
+    router.navigate({
+      to: to as any,
+      params: params as any,
+      search: search as any,
+      hash,
+      from,
+      replace,
+    } as any);
+
     onClick?.(e);
   };
 
   React.useEffect(() => {
-    return () => {
-      if (timer.current) window.clearTimeout(timer.current);
-    };
+    return () => { if (timer.current) window.clearTimeout(timer.current); };
   }, []);
 
   return (
-    <Link
+    <a
       {...rest}
-      to={to as any}
+      href={href}
+      target={target}
+      rel={rel}
+      className={className}
       data-tsr-prefetch={status}
-      onPointerEnter={handlePointerEnter}
+      onMouseEnter={handleMouseEnter}
       onFocus={handleFocus}
-      onPointerDown={handlePointerDown}
+      onTouchStart={handleTouchStart}
       onClick={handleClick}
-    />
+    >
+      {children}
+    </a>
   );
 }

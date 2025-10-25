@@ -3,52 +3,43 @@ import {
   RouterProvider,
   Link,
   Outlet,
-  useRouter,
   createRouter,
   createRootRoute,
   createRoute,
+  useLoaderData,
 } from "@tanstack/react-router";
-const TrackedLink = (props: any) => <Link {...props} />;
+import { TrackedLink } from "@dimano/tsr-prefetch-reporter";
 
-function delay(ms: number) { return new Promise(res => setTimeout(res, ms)); }
-
-async function loadInvoices() { await delay(400);  return { total: 12,  lastUpdated: new Date().toISOString() }; }
-async function loadCustomers() { await delay(1200); return { total: 182, lastUpdated: new Date().toISOString() }; }
-async function loadReports()  { await delay(2000); return { chartPoints: 900, lastUpdated: new Date().toISOString() }; }
-
-function RootLayout() {
-  const router = useRouter();
-  return (
-    <>
-      <nav>
-        <Link to="/" className="link">Home</Link>
-        <TrackedLink to="/invoices" preload="intent" ttlMs={4000}>
-          Invoices
-        </TrackedLink>
-        <TrackedLink to="/customers" preload={true} ttlMs={4000}>
-          Customers
-        </TrackedLink>
-        <TrackedLink to="/reports" preload="intent" ttlMs={4000}>
-          Reports
-        </TrackedLink>
-      </nav>
-      <main><Outlet /></main>
-      <footer>Try hovering links, then click. Toggle overlay in the Devtools dock.</footer>
-    </>
-  );
-}
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+async function loadInvoices() { await wait(400);  return { total: 12,  at: Date.now() }; }
+async function loadCustomers() { await wait(1200); return { total: 182, at: Date.now() }; }
+async function loadReports() { await wait(2000);  return { points: 900, at: Date.now() }; }
 
 const rootRoute = createRootRoute({
-  component: RootLayout,
+  component: () => (
+    <>
+      <nav className="nav">
+        {/* Keep one plain Link for contrast */}
+        <Link to="/" className="link">Home</Link>
+
+        {/* Tracked links – short TTL so you see pending→hit/waste quickly */}
+        <TrackedLink to="/invoices"  ttlMs={4000}>Invoices</TrackedLink>
+        <TrackedLink to="/customers" ttlMs={4000}>Customers</TrackedLink>
+        <TrackedLink to="/reports"   ttlMs={4000}>Reports</TrackedLink>
+      </nav>
+      <main><Outlet /></main>
+      <footer>Toggle overlay in the Devtools panel, then hover/click the links.</footer>
+    </>
+  ),
 });
 
-const homeRoute = createRoute({
+const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: () => (
     <div className="card">
       <h2>Home</h2>
-      <p>This is a tiny app wired to the Prefetch Heatmap.</p>
+      <p>Hover and click links to see the Prefetch Heatmap colors.</p>
     </div>
   ),
 });
@@ -58,12 +49,12 @@ const invoicesRoute = createRoute({
   path: "/invoices",
   loader: loadInvoices,
   component: () => {
-    const data = invoicesRoute.useLoaderData() as Awaited<ReturnType<typeof loadInvoices>>;
+    const data = useLoaderData({ from: invoicesRoute.id }) as Awaited<ReturnType<typeof loadInvoices>>;
     return (
       <div className="card">
         <h2>Invoices</h2>
         <p>Total: {data.total}</p>
-        <small>Loaded at {new Date(data.lastUpdated).toLocaleTimeString()}</small>
+        <small>Loaded at {new Date(data.at).toLocaleTimeString()}</small>
       </div>
     );
   },
@@ -74,12 +65,12 @@ const customersRoute = createRoute({
   path: "/customers",
   loader: loadCustomers,
   component: () => {
-    const data = customersRoute.useLoaderData() as Awaited<ReturnType<typeof loadCustomers>>;
+    const data = useLoaderData({ from: customersRoute.id }) as Awaited<ReturnType<typeof loadCustomers>>;
     return (
       <div className="card">
         <h2>Customers</h2>
         <p>Total: {data.total}</p>
-        <small>Loaded at {new Date(data.lastUpdated).toLocaleTimeString()}</small>
+        <small>Loaded at {new Date(data.at).toLocaleTimeString()}</small>
       </div>
     );
   },
@@ -90,25 +81,25 @@ const reportsRoute = createRoute({
   path: "/reports",
   loader: loadReports,
   component: () => {
-    const data = reportsRoute.useLoaderData() as Awaited<ReturnType<typeof loadReports>>;
+    const data = useLoaderData({ from: reportsRoute.id }) as Awaited<ReturnType<typeof loadReports>>;
     return (
       <div className="card">
         <h2>Reports</h2>
-        <p>Chart points: {data.chartPoints}</p>
-        <small>Loaded at {new Date(data.lastUpdated).toLocaleTimeString()}</small>
+        <p>Chart points: {data.points}</p>
+        <small>Loaded at {new Date(data.at).toLocaleTimeString()}</small>
       </div>
     );
   },
 });
 
-const routeTree = rootRoute.addChildren([homeRoute, invoicesRoute, customersRoute, reportsRoute]);
-export const router = createRouter({ routeTree });
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  invoicesRoute,
+  customersRoute,
+  reportsRoute,
+]);
 
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+export const router = createRouter({ routeTree });
 
 export function AppRouter() {
   return <RouterProvider router={router} />;
