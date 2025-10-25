@@ -1,0 +1,21 @@
+{
+  "name": "tanstack-prefetch-heatmap",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "packages/*",
+    "apps/demo"
+  ],
+  "scripts": {
+    "build": "pnpm -r --filter ./packages... build",
+    "dev": "pnpm --dir apps/demo dev",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "keywords": [],
+  "author": "Dimitri Anoudis",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "@tanstack/react-router": "^1.133.27"
+  }
+}

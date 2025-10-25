@@ -1,0 +1,15 @@
+html[data-tsr-heatmap] a[data-tsr-link] {
+  outline: 2px solid rgba(0,0,0,.25);
+  position: relative;
+}
+html[data-tsr-heatmap] a[data-tsr-link]::after {
+  content: "prefetch";
+  font: 11px/1.6 ui-sans-serif, system-ui;
+  position: absolute;
+  top: -1.2em;
+  left: 0;
+  background: rgba(0,0,0,.75);
+  color: white;
+  padding: 0 4px;
+  border-radius: 2px;
+}

@@ -1,0 +1,79 @@
+:root { 
+  color-scheme: light dark; 
+}
+
+body { 
+  margin: 0; 
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; 
+}
+
+nav { 
+  display: flex; 
+  gap: 12px; 
+  padding: 12px; 
+  border-bottom: 1px solid rgba(0,0,0,.1); 
+  position: sticky; 
+  top: 0; 
+  background: rgba(255,255,255,.7); 
+  backdrop-filter: blur(8px); 
+}
+
+main { 
+  padding: 16px; 
+}
+
+.card { 
+  padding: 12px; 
+  border: 1px solid rgba(0,0,0,.08); 
+  border-radius: 8px; 
+}
+
+footer { 
+  padding: 24px; 
+  opacity: .7; 
+}
+
+html[data-tsr-heatmap] a[data-tsr-link] {
+  outline: 2px solid rgba(0,0,0,.25);
+  position: relative;
+}
+
+html[data-tsr-heatmap] a[data-tsr-link]::after {
+  content: "prefetch";
+  font: 11px/1.6 ui-sans-serif, system-ui;
+  position: absolute;
+  top: -1.2em;
+  left: 0;
+  background: rgba(0,0,0,.75);
+  color: white;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+#devtools-dock {
+  position: fixed;
+  inset: auto 0 0 auto;
+  width: min(560px, 100%);
+  height: 45vh;
+  border-top: 1px solid rgba(0,0,0,.1);
+  border-left: 1px solid rgba(0,0,0,.1);
+  background: white;
+  box-shadow: 0 -10px 30px rgba(0,0,0,.1);
+  display: flex;
+  flex-direction: column;
+}
+#devtools-dock header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; background: #f7f7f7; border-bottom: 1px solid rgba(0,0,0,.1);
+}
+
+#devtools-dock main { 
+  flex: 1; 
+  overflow: auto; 
+}
+
+#devtools-toggle {
+  position: fixed; right: 12px; bottom: 12px;
+  padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15);
+  background: white; box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
