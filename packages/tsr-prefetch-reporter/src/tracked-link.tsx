@@ -4,19 +4,14 @@ import { useRouter } from "@tanstack/react-router";
 type PrefetchStatus = "pending" | "hit" | "waste" | undefined;
 
 export type TrackedLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-  /** Destination (same as TanStack Router `to`) */
   to: any;
-  /** Optional router pieces (kept loose for maximal compatibility) */
   params?: any;
   search?: any;
   hash?: string;
   from?: any;
   replace?: boolean;
-  /** Time window (ms) before pending turns into waste */
   ttlMs?: number;
-  /** Which interactions count as “intent” */
   intent?: Array<"hover" | "focus" | "touch">;
-  /** Optional analytics hook */
   onPrefetchIntent?: (href: string) => void;
 };
 
@@ -33,7 +28,6 @@ export function TrackedLink(props: TrackedLinkProps) {
 
   const router = useRouter();
 
-  // Build an href that matches the future navigation (types kept lax on purpose)
   const { href } = router.buildLocation({
     to: to as any,
     params: params as any,
@@ -72,7 +66,6 @@ export function TrackedLink(props: TrackedLinkProps) {
   };
 
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
-    // Respect new-tab/window and modified-clicks
     if (
       e.defaultPrevented ||
       e.metaKey || e.ctrlKey || e.shiftKey || e.altKey ||
