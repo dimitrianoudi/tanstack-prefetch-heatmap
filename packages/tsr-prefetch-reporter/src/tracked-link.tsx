@@ -1,53 +1,90 @@
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
 
+type PrefetchStatus = "pending" | "hit" | "waste" | undefined;
+
 type TrackedLinkProps = React.ComponentProps<typeof Link> & {
-  router: any;
+  /** Time window (ms) for a prefetch to be considered "hot" before turning into "waste". */
   ttlMs?: number;
+  /** Which interactions count as "intent" to prefetch. */
+  intent?: Array<"hover" | "focus" | "touch">;
+  /** Optional hook for your analytics/reporter bus. */
+  onPrefetchIntent?: (href: string) => void;
 };
 
-export function TrackedLink({ router, ttlMs = 15000, onPointerEnter, onClick, ...props }: TrackedLinkProps) {
-  const aRef = React.useRef<HTMLAnchorElement | null>(null);
-  const wasteTimer = React.useRef<number | null>(null);
-  const hadClick = React.useRef(false);
+export function TrackedLink(props: TrackedLinkProps) {
+  const {
+    ttlMs = 15000,
+    intent = ["hover", "focus", "touch"],
+    onPrefetchIntent,
+    onPointerEnter,
+    onFocus,
+    onPointerDown,
+    onClick,
+    to,
+    ...rest
+  } = props;
 
-  const setState = (state?: "pending" | "hit" | "waste") => {
-    const el = aRef.current;
-    if (!el) return;
-    if (!state) el.removeAttribute("data-tsr-prefetch");
-    else el.setAttribute("data-tsr-prefetch", state);
-  };
+  const [status, setStatus] = React.useState<PrefetchStatus>(undefined);
+  const timer = React.useRef<number | null>(null);
+  const clicked = React.useRef(false);
+
+  const href = typeof to === "string" ? to : (to as any)?.toString?.() ?? "";
+
+  const startPending = React.useCallback(() => {
+    setStatus("pending");
+    clicked.current = false;
+
+    // notify reporter (optional)
+    if (onPrefetchIntent) onPrefetchIntent(href);
+
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      if (!clicked.current) setStatus("waste");
+    }, ttlMs);
+  }, [href, onPrefetchIntent, ttlMs]);
 
   const handlePointerEnter: React.PointerEventHandler<HTMLAnchorElement> = (e) => {
-    setState("pending");
-
-    if (wasteTimer.current) window.clearTimeout(wasteTimer.current);
-    hadClick.current = false;
-    wasteTimer.current = window.setTimeout(() => {
-      if (!hadClick.current) setState("waste");
-    }, ttlMs);
-
+    if (intent.includes("hover")) startPending();
     onPointerEnter?.(e);
   };
 
-  const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
-    hadClick.current = true;
-    if (wasteTimer.current) window.clearTimeout(wasteTimer.current);
-    setState("hit");
+  const handleFocus: React.FocusEventHandler<HTMLAnchorElement> = (e) => {
+    if (intent.includes("focus")) startPending();
+    onFocus?.(e);
+  };
 
+  const handlePointerDown: React.PointerEventHandler<HTMLAnchorElement> = (e) => {
+    // Touch users won’t hover; treat first touch as intent
+    if (intent.includes("touch")) {
+      // only kick off if we’re not already pending
+      if (status !== "pending") startPending();
+    }
+    onPointerDown?.(e);
+  };
+
+  const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
+    clicked.current = true;
+    if (timer.current) window.clearTimeout(timer.current);
+    setStatus("hit");
     onClick?.(e);
   };
 
   React.useEffect(() => {
-    return () => { if (wasteTimer.current) window.clearTimeout(wasteTimer.current); };
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current);
+    };
   }, []);
 
   return (
     <Link
-      ref={aRef as any}
+      {...rest}
+      to={to as any}
+      data-tsr-prefetch={status}
       onPointerEnter={handlePointerEnter}
+      onFocus={handleFocus}
+      onPointerDown={handlePointerDown}
       onClick={handleClick}
-      {...props}
     />
   );
 }

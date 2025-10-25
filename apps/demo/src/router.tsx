@@ -22,9 +22,15 @@ function RootLayout() {
     <>
       <nav>
         <Link to="/" className="link">Home</Link>
-        <TrackedLink router={router} to="/invoices" preload="intent">Invoices</TrackedLink>
-        <TrackedLink router={router} to="/customers" preload={true}>Customers</TrackedLink>
-        <TrackedLink router={router} to="/reports" preload="intent">Reports</TrackedLink>
+        <TrackedLink to="/invoices" preload="intent" ttlMs={4000}>
+          Invoices
+        </TrackedLink>
+        <TrackedLink to="/customers" preload={true} ttlMs={4000}>
+          Customers
+        </TrackedLink>
+        <TrackedLink to="/reports" preload="intent" ttlMs={4000}>
+          Reports
+        </TrackedLink>
       </nav>
       <main><Outlet /></main>
       <footer>Try hovering links, then click. Toggle overlay in the Devtools dock.</footer>

@@ -53,26 +53,10 @@ html[data-tsr-heatmap] a[data-tsr-link]::after {
   border-radius: 2px;
 }
 /* only active when Devtools toggles the overlay on the <html> tag */
-html[data-tsr-heatmap] a[data-tsr-prefetch] {
-  position: relative;
-  outline-offset: 2px;
-  transition: box-shadow .15s ease, outline-color .15s ease;
-}
-
-html[data-tsr-heatmap] a[data-tsr-prefetch="pending"] {
-  outline: 2px dashed var(--tsr-pending);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tsr-pending) 30%, transparent);
-}
-
-html[data-tsr-heatmap] a[data-tsr-prefetch="hit"] {
-  outline: 2px solid var(--tsr-hit);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tsr-hit) 30%, transparent);
-}
-
-html[data-tsr-heatmap] a[data-tsr-prefetch="waste"] {
-  outline: 2px solid var(--tsr-waste);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tsr-waste) 25%, transparent);
-}
+html[data-tsr-heatmap] a[data-tsr-prefetch] { outline-offset:2px; transition:box-shadow .15s, outline-color .15s; }
+html[data-tsr-heatmap] a[data-tsr-prefetch="pending"] { outline:2px dashed var(--tsr-pending); box-shadow:0 0 0 3px rgba(245,158,11,.25); }
+html[data-tsr-heatmap] a[data-tsr-prefetch="hit"]     { outline:2px solid  var(--tsr-hit);     box-shadow:0 0 0 3px rgba(34,197,94,.25); }
+html[data-tsr-heatmap] a[data-tsr-prefetch="waste"]   { outline:2px solid  var(--tsr-waste);   box-shadow:0 0 0 3px rgba(239,68,68,.22); }
 
 #devtools-dock {
   position: fixed;
