@@ -28,7 +28,7 @@ jobs:
           pnpm -v
 
       - name: Install deps
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Typecheck
         run: pnpm -r typecheck
