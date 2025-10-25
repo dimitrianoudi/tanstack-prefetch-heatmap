@@ -1,15 +1,26 @@
 {
   "name": "@dimano/ts-devtools-plugin-prefetch-heatmap",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
-  "sideEffects": ["dist/overlay-style.css"],
-  "files": ["dist", "README.md", "LICENSE"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "sideEffects": [
+    "dist/overlay-style.css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && shx cp src/overlay-style.css dist/",
+    "build": "tsc -p tsconfig.json && shx mkdir -p dist && shx cp src/overlay-style.css dist/overlay-style.css",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build"
   },
@@ -23,12 +34,23 @@
     "shx": "^0.3.4",
     "typescript": "^5.6.3"
   },
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/dimitrianoudi/tanstack-prefetch-heatmap"
   },
   "homepage": "https://github.com/dimitrianoudi/tanstack-prefetch-heatmap#readme",
-  "bugs": { "url": "https://github.com/dimitrianoudi/tanstack-prefetch-heatmap/issues" },
-  "keywords": ["tanstack", "devtools", "react", "router", "prefetch", "heatmap"]
+  "bugs": {
+    "url": "https://github.com/dimitrianoudi/tanstack-prefetch-heatmap/issues"
+  },
+  "keywords": [
+    "tanstack",
+    "devtools",
+    "react",
+    "router",
+    "prefetch",
+    "heatmap"
+  ]
 }
