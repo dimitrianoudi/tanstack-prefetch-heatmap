@@ -27,7 +27,7 @@ function RootLayout() {
         <TrackedLink router={router} to="/reports" preload="intent">Reports</TrackedLink>
       </nav>
       <main><Outlet /></main>
-      <footer>Try hovering links; then click. Toggle overlay in the Devtools dock.</footer>
+      <footer>Try hovering links, then click. Toggle overlay in the Devtools dock.</footer>
     </>
   );
 }
@@ -56,7 +56,7 @@ const invoicesRoute = createRoute({
     return (
       <div className="card">
         <h2>Invoices</h2>
-        <p>Total; {data.total}</p>
+        <p>Total: {data.total}</p>
         <small>Loaded at {new Date(data.lastUpdated).toLocaleTimeString()}</small>
       </div>
     );
@@ -72,7 +72,7 @@ const customersRoute = createRoute({
     return (
       <div className="card">
         <h2>Customers</h2>
-        <p>Total; {data.total}</p>
+        <p>Total: {data.total}</p>
         <small>Loaded at {new Date(data.lastUpdated).toLocaleTimeString()}</small>
       </div>
     );
@@ -88,7 +88,7 @@ const reportsRoute = createRoute({
     return (
       <div className="card">
         <h2>Reports</h2>
-        <p>Chart points; {data.chartPoints}</p>
+        <p>Chart points: {data.chartPoints}</p>
         <small>Loaded at {new Date(data.lastUpdated).toLocaleTimeString()}</small>
       </div>
     );

@@ -1,62 +1,53 @@
 import * as React from "react";
-import type { PrefetchTrigger, ReporterOptions } from "./types";
-import { createPrefetchReporter } from "./index";
+import { Link } from "@tanstack/react-router";
 
-type LinkProps = React.PropsWithChildren<{
+type TrackedLinkProps = React.ComponentProps<typeof Link> & {
   router: any;
-  to: string;
-  preload?: boolean | "intent";
-  className?: string;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-}>;
+  ttlMs?: number;
+};
 
-export function TrackedLink(props: LinkProps & { reporterOptions?: ReporterOptions }) {
-  const { router, to, preload = "intent", className, onClick, children, reporterOptions } = props;
-  const repRef = React.useRef(createPrefetchReporter(router, reporterOptions));
-  const href = to;
+export function TrackedLink({ router, ttlMs = 15000, onPointerEnter, onClick, ...props }: TrackedLinkProps) {
+  const aRef = React.useRef<HTMLAnchorElement | null>(null);
+  const wasteTimer = React.useRef<number | null>(null);
+  const hadClick = React.useRef(false);
 
-  const intent = React.useCallback((trigger: PrefetchTrigger) => {
-    if (preload === true || preload === "intent") {
-      repRef.current.reportPrefetch(href, trigger);
-    }
-  }, [href, preload]);
+  const setState = (state?: "pending" | "hit" | "waste") => {
+    const el = aRef.current;
+    if (!el) return;
+    if (!state) el.removeAttribute("data-tsr-prefetch");
+    else el.setAttribute("data-tsr-prefetch", state);
+  };
 
-  const anchorRef = React.useRef<HTMLAnchorElement | null>(null);
-  React.useEffect(() => {
-    if (!anchorRef.current || preload !== true) return;
-    const el = anchorRef.current;
-    const io = new IntersectionObserver(entries => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          repRef.current.reportPrefetch(href, "viewport");
-          io.disconnect();
-          break;
-        }
-      }
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [href, preload]);
+  const handlePointerEnter: React.PointerEventHandler<HTMLAnchorElement> = (e) => {
+    setState("pending");
 
-  const handleClick = React.useCallback(async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (wasteTimer.current) window.clearTimeout(wasteTimer.current);
+    hadClick.current = false;
+    wasteTimer.current = window.setTimeout(() => {
+      if (!hadClick.current) setState("waste");
+    }, ttlMs);
+
+    onPointerEnter?.(e);
+  };
+
+  const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
+    hadClick.current = true;
+    if (wasteTimer.current) window.clearTimeout(wasteTimer.current);
+    setState("hit");
+
     onClick?.(e);
-    if (!e.defaultPrevented) {
-      e.preventDefault();
-      await repRef.current.reportNavigation(href);
-    }
-  }, [href, onClick]);
+  };
+
+  React.useEffect(() => {
+    return () => { if (wasteTimer.current) window.clearTimeout(wasteTimer.current); };
+  }, []);
 
   return (
-    <a
-      ref={anchorRef}
-      href={href}
-      onMouseEnter={() => intent("hover")}
-      onFocus={() => intent("focus")}
+    <Link
+      ref={aRef as any}
+      onPointerEnter={handlePointerEnter}
       onClick={handleClick}
-      data-tsr-link=""
-      className={className}
-    >
-      {children}
-    </a>
+      {...props}
+    />
   );
 }

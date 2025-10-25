@@ -1,5 +1,8 @@
 :root { 
-  color-scheme: light dark; 
+  color-scheme: light dark;
+  --tsr-hit:    #22c55e; /* green */
+  --tsr-waste:  #ef4444; /* red */
+  --tsr-pending:#f59e0b; /* amber */
 }
 
 body { 
@@ -48,6 +51,27 @@ html[data-tsr-heatmap] a[data-tsr-link]::after {
   color: white;
   padding: 0 4px;
   border-radius: 2px;
+}
+/* only active when Devtools toggles the overlay on the <html> tag */
+html[data-tsr-heatmap] a[data-tsr-prefetch] {
+  position: relative;
+  outline-offset: 2px;
+  transition: box-shadow .15s ease, outline-color .15s ease;
+}
+
+html[data-tsr-heatmap] a[data-tsr-prefetch="pending"] {
+  outline: 2px dashed var(--tsr-pending);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tsr-pending) 30%, transparent);
+}
+
+html[data-tsr-heatmap] a[data-tsr-prefetch="hit"] {
+  outline: 2px solid var(--tsr-hit);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tsr-hit) 30%, transparent);
+}
+
+html[data-tsr-heatmap] a[data-tsr-prefetch="waste"] {
+  outline: 2px solid var(--tsr-waste);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tsr-waste) 25%, transparent);
 }
 
 #devtools-dock {

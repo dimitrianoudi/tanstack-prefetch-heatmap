@@ -2,6 +2,7 @@ import * as React from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { PrefetchHeatmapPanel } from "./panel";
 import type { ReporterEvent } from "./types";
+import "./overlay-style.css";
 
 export default function registerPrefetchHeatmapPlugin(host: {
   registerPanel: (tab: { id: string; title: string; mount: (el: HTMLElement) => void }) => void;

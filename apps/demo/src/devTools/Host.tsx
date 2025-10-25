@@ -57,7 +57,7 @@ export function DevtoolsDock() {
         aria-hidden={!open}
         style={{ display: open ? "flex" : "none" }}
       >
-        <header><strong>TanStack Devtools; Demo Host</strong></header>
+        <header><strong>TanStack Devtools - Demo Host</strong></header>
         <main ref={panelRef} />
       </section>
     </>

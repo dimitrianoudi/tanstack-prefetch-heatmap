@@ -37,7 +37,7 @@ export function PrefetchHeatmapPanel({ subscribe, sendToPage }: Props) {
       <h3 style={{ margin: 0 }}>Router Prefetch Heatmap</h3>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8 }}>
-        <label>TTL; ms</label>
+        <label>TTL: ms</label>
         <input type="number" value={ttl} min={0} step={1000} onChange={e => setTtl(Number(e.target.value))} />
         <button onClick={toggleOverlay}>{overlay ? "Disable overlay" : "Enable overlay"}</button>
       </div>
@@ -49,8 +49,8 @@ export function PrefetchHeatmapPanel({ subscribe, sendToPage }: Props) {
             <th>Prefetches</th>
             <th>Hit rate</th>
             <th>Wasted</th>
-            <th>Avg Age; ms</th>
-            <th>Avg TTI; ms</th>
+            <th>Avg Age: ms</th>
+            <th>Avg TTI: ms</th>
           </tr>
         </thead>
         <tbody>
@@ -71,7 +71,7 @@ export function PrefetchHeatmapPanel({ subscribe, sendToPage }: Props) {
       </table>
 
       <p style={{ opacity: 0.7, marginTop: 8 }}>
-        Tip; turn on overlay; hover links; click around; watch the table update live.
+        Tip: turn on overlay, hover links, click around, watch the table update live.
       </p>
     </div>
   );
