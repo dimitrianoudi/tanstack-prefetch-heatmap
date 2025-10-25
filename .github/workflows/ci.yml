@@ -7,34 +7,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1) Install pnpm first (so setup-node can find it when enabling cache)
-      - name: Setup pnpm 10.12.1
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.12.1
           run_install: false
 
-      # 2) Now set up Node and enable pnpm cache
-      - name: Setup Node 20 + pnpm cache
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Show versions
-        run: |
-          node -v
-          pnpm -v
-
       - name: Install deps
         run: pnpm install --no-frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm -r typecheck
-
-      - name: Build packages
+      # Build libs so dist/ exists for TS resolution in the demo
+      - name: Build workspace packages
         run: pnpm -r --filter "./packages/*" build
+
+      - name: Typecheck all
+        run: pnpm -r typecheck
 
       - name: Build demo (optional)
         run: pnpm --dir apps/demo build
