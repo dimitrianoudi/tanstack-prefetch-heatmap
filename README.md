@@ -1,4 +1,10 @@
-# TanStack Prefetch Heatmap Devtools (monorepo)
+# TanStack Prefetch Heatmap Devtools
+
+[![npm](https://img.shields.io/npm/v/@dimano/ts-devtools-plugin-prefetch-heatmap.svg)](https://www.npmjs.com/package/@dimano/ts-devtools-plugin-prefetch-heatmap)
+[![npm](https://img.shields.io/npm/v/@dimano/tsr-prefetch-reporter.svg)](https://www.npmjs.com/package/@dimano/tsr-prefetch-reporter)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Build](https://github.com/dimitrianoudi/tanstack-prefetch-heatmap/actions/workflows/ci.yml/badge.svg)
+
 
 A tiny developer-tooling experiment for **TanStack React Router** that visualizes and measures **link prefetch intent** vs **actual navigation**. It ships as:
 
