@@ -9,17 +9,17 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "@tanstack/react-router": "^1.133.27",
     "@dimano/tsr-prefetch-reporter": "workspace:*",
-    "@dimano/ts-devtools-plugin-prefetch-heatmap": "workspace:*",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@dimano/ts-devtools-plugin-prefetch-heatmap": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^18.3.8",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.3",
-    "typescript": "^5.7.0",
-    "vite": "^5.4.10"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "@vitejs/plugin-react": "^4.3.3"
   }
 }
