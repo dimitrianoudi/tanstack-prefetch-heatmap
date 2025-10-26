@@ -10,7 +10,7 @@ A Devtools plugin that overlays **prefetch wins vs. waste** for **TanStack React
 Pairs with `@dimano/tsr-prefetch-reporter` to mark links and shows a panel with simple metrics.
 
 <p align="center">
-  <img alt="Prefetch Heatmap plugin card" src="https://raw.githubusercontent.com/dimitrianoudi/tanstack-prefetch-heatmap/main/assets/prefetch-heatmap-card.png" width="520" />
+  <img alt="Prefetch Heatmap demo" src="https://raw.githubusercontent.com/dimitrianoudi/tanstack-prefetch-heatmap/main/assets/prefetch-heatmap-card.png" width="520" />
 </p>
 
 ## Install
