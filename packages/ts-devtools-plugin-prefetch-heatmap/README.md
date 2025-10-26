@@ -112,10 +112,6 @@ pnpm --dir apps/demo dev
 - Issues: https://github.com/dimitrianoudi/tanstack-prefetch-heatmap/issues  
 - PRs: https://github.com/dimitrianoudi/tanstack-prefetch-heatmap/pulls
 
-### Marketplace
-
-To list this plugin in the **TanStack Devtools Marketplace**, open a PR adding it to the registry.
-
 ## License
 
 MIT © Dimano
