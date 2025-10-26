@@ -1,13 +1,13 @@
 # @dimano/ts-devtools-plugin-prefetch-heatmap
 
+A Devtools plugin that overlays **prefetch wins vs. waste** for **TanStack React Router** apps.  
+Pairs with `@dimano/tsr-prefetch-reporter` to mark links and shows a panel with simple metrics.
+
 [![npm](https://img.shields.io/npm/v/@dimano/ts-devtools-plugin-prefetch-heatmap.svg)](https://www.npmjs.com/package/@dimano/ts-devtools-plugin-prefetch-heatmap)
 [![min+gzip](https://img.shields.io/bundlephobia/minzip/@dimano/ts-devtools-plugin-prefetch-heatmap)](https://bundlephobia.com/package/@dimano/ts-devtools-plugin-prefetch-heatmap)
 [![downloads](https://img.shields.io/npm/dm/@dimano/ts-devtools-plugin-prefetch-heatmap.svg)](https://www.npmjs.com/package/@dimano/ts-devtools-plugin-prefetch-heatmap)
 ![types](https://img.shields.io/badge/TypeScript-types-blue?logo=typescript)
 [![license](https://img.shields.io/npm/l/@dimano/ts-devtools-plugin-prefetch-heatmap.svg)](#license)
-
-A Devtools plugin that overlays **prefetch wins vs. waste** for **TanStack React Router** apps.  
-Pairs with `@dimano/tsr-prefetch-reporter` to mark links and shows a panel with simple metrics.
 
 <p align="center">
   <img alt="Prefetch Heatmap demo" src="https://raw.githubusercontent.com/dimitrianoudi/tanstack-prefetch-heatmap/main/assets/prefetch-heatmap-card.png" width="520" />

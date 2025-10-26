@@ -1,14 +1,14 @@
 # @dimano/tsr-prefetch-reporter
 
+A tiny link component that visualizes **prefetch intent vs. clicks** for **TanStack React Router** apps.  
+It renders a real `<a>` (so DOM events are reliable), navigates via the router, and sets
+`data-tsr-prefetch="pending|hit|waste"` so a Devtools overlay (or your CSS) can color links.
+
 [![npm](https://img.shields.io/npm/v/@dimano/tsr-prefetch-reporter.svg)](https://www.npmjs.com/package/@dimano/tsr-prefetch-reporter)
 [![min+gzip](https://img.shields.io/bundlephobia/minzip/@dimano/tsr-prefetch-reporter)](https://bundlephobia.com/package/@dimano/tsr-prefetch-reporter)
 [![downloads](https://img.shields.io/npm/dm/@dimano/tsr-prefetch-reporter.svg)](https://www.npmjs.com/package/@dimano/tsr-prefetch-reporter)
 ![types](https://img.shields.io/badge/TypeScript-types-blue?logo=typescript)
 [![license](https://img.shields.io/npm/l/@dimano/tsr-prefetch-reporter.svg)](#license)
-
-A tiny link component that visualizes **prefetch intent vs. clicks** for **TanStack React Router** apps.  
-It renders a real `<a>` (so DOM events are reliable), navigates via the router, and sets
-`data-tsr-prefetch="pending|hit|waste"` so a Devtools overlay (or your CSS) can color links.
 
 <p align="center">
   <img alt="Prefetch Heatmap demo" src="https://raw.githubusercontent.com/dimitrianoudi/tanstack-prefetch-heatmap/main/assets/prefetch-heatmap-card.png" width="520" />
