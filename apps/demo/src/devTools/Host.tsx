@@ -2,64 +2,84 @@ import * as React from "react";
 import registerPrefetchHeatmapPlugin from "@dimano/ts-devtools-plugin-prefetch-heatmap";
 import type { ReporterEvent } from "@dimano/ts-devtools-plugin-prefetch-heatmap";
 
-type Subscriber = (e: ReporterEvent) => void;
-
 export function DevtoolsDock() {
-  const [open, setOpen] = React.useState(true);
   const panelRef = React.useRef<HTMLDivElement | null>(null);
-  const subs = React.useRef<Set<Subscriber>>(new Set());
-  const registeredRef = React.useRef(false);
 
   React.useEffect(() => {
-    window.__TANSTACK_DEVTOOLS_EVENT_CLIENT__ = {
-      emit: (e: ReporterEvent) => { for (const fn of subs.current) fn(e); }
-    };
-    const onMsg = (e: MessageEvent) => {
-      if (e.data?.__tanstackDevtools) {
-        const ev = e.data.payload as ReporterEvent;
-        for (const fn of subs.current) fn(ev);
-      }
-    };
-    window.addEventListener("message", onMsg);
-    return () => window.removeEventListener("message", onMsg);
-  }, []);
+    const w = window as any;
 
-  React.useEffect(() => {
-    if (!panelRef.current || registeredRef.current) return;
-    registeredRef.current = true;
+    if (!w.__TANSTACK_DEVTOOLS_EVENT_CLIENT__) {
+      const subs = new Set<(e: any) => void>();
+      w.__TANSTACK_DEVTOOLS_EVENT_CLIENT__ = {
+        emit: (e: any) => subs.forEach((fn) => fn(e)),
+        subscribe: (fn: (e: any) => void) => {
+          subs.add(fn);
+          return () => subs.delete(fn);
+        },
+      };
+    }
 
-    const hostApi = {
-      registerPanel(tab: { id: string; title: string; mount: (el: HTMLElement) => void }) {
-        tab.mount(panelRef.current!);
+    const disposers: Array<() => void> = [];
+
+    registerPrefetchHeatmapPlugin({
+      registerPanel: ({ mount }) => {
+        const tryMount = () => {
+          if (panelRef.current) mount(panelRef.current);
+          else {
+            const id = setTimeout(tryMount, 0);
+            disposers.push(() => clearTimeout(id));
+          }
+        };
+        tryMount();
       },
-      subscribeToEvents: (_type: "router.*" | "*", fn: Subscriber) => {
-        subs.current.add(fn); return () => subs.current.delete(fn);
+      subscribeToEvents: (_type: "router.*" | "*", fn: (e: any) => void) => {
+        return (w.__TANSTACK_DEVTOOLS_EVENT_CLIENT__ as {
+          subscribe: (fn: (e: any) => void) => () => void;
+        }).subscribe(fn);
       },
       sendToPage: (msg: ReporterEvent) => {
         if (msg.type === "router.overlay.toggle") {
           document.documentElement.toggleAttribute("data-tsr-heatmap", msg.enabled);
         }
-      }
-    };
+      },
+    });
 
-    registerPrefetchHeatmapPlugin(hostApi);
+    return () => {
+      disposers.forEach((d) => d());
+    };
   }, []);
 
   return (
-    <>
-      <button id="devtools-toggle" onClick={() => setOpen(o => !o)}>
-        {open ? "Hide Devtools" : "Show Devtools"}
-      </button>
-
-      <section
-        id="devtools-dock"
-        aria-label="Devtools Dock"
-        aria-hidden={!open}
-        style={{ display: open ? "flex" : "none" }}
+    <div
+      style={{
+        position: "fixed",
+        right: 12,
+        bottom: 12,
+        width: 380,
+        maxHeight: "60vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "#fff",
+        border: "1px solid #e5e7eb",
+        borderRadius: 8,
+        boxShadow: "0 8px 24px rgba(0,0,0,.2)",
+        overflow: "hidden",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          padding: "8px 10px",
+          fontWeight: 600,
+          fontFamily: "ui-sans-serif, system-ui",
+          borderBottom: "1px solid #f3f4f6",
+        }}
       >
-        <header><strong>TanStack Devtools - Demo Host</strong></header>
-        <main ref={panelRef} />
-      </section>
-    </>
+        TanStack Devtools — Prefetch Heatmap
+      </div>
+      <div ref={panelRef} style={{ minHeight: 240, overflow: "auto" }} />
+    </div>
   );
 }
+
+export default DevtoolsDock;

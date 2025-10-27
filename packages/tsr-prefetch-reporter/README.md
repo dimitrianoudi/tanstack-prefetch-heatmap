@@ -1,6 +1,6 @@
 # @dimano/tsr-prefetch-reporter
 
-A tiny link component that visualizes **prefetch intent vs. clicks** for **TanStack React Router** apps.  
+A tiny link component that visualizes prefetch intent vs. clicks for TanStack React Router apps.  
 It renders a real `<a>` (so DOM events are reliable), navigates via the router, and sets
 `data-tsr-prefetch="pending|hit|waste"` so a Devtools overlay (or your CSS) can color links.
 
