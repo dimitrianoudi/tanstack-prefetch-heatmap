@@ -1,0 +1,7 @@
+src/
+!dist/
+tsconfig.json
+tsconfig.*.json
+.github/
+.vscode/
+*.log

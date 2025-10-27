@@ -1,6 +1,6 @@
 {
   "name": "@dimano/tsr-prefetch-reporter",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
