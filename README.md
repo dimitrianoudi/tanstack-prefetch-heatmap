@@ -29,8 +29,8 @@ A tiny developer tooling experiment for **TanStack React Router** that visualize
 
    <TrackedLink to="/invoices" preload="intent">Invoices</TrackedLink>
    ```
-3. Open TanStack Devtools in your app; go to **Marketplace → Add to Devtools**; search **Prefetch Heatmap**; add it.
-4. Open the **Prefetch Heatmap** panel; toggle **Enable overlay** to annotate links in page.
+3. Open TanStack Devtools in your app, go to **Marketplace → Add to Devtools**, search **Prefetch Heatmap**, add it.
+4. Open the **Prefetch Heatmap** panel, toggle **Enable overlay** to annotate links in page.
 
 The official Devtools host imports the plugin’s **named** export, `registerPrefetchHeatmapPlugin`. No extra wiring is needed.
 
@@ -117,7 +117,7 @@ pnpm add @tanstack/react-router @dimano/tsr-prefetch-reporter
 ### 2) Wire a tracked link
 ```tsx
 import { TrackedLink } from "@dimano/tsr-prefetch-reporter";
-// normal usage; you can pass any props supported by TanStack Router's <Link />
+// normal usage, you can pass any props supported by TanStack Router's <Link />
 
 <nav>
   <TrackedLink to="/invoices" preload="intent">Invoices</TrackedLink>
@@ -127,13 +127,13 @@ import { TrackedLink } from "@dimano/tsr-prefetch-reporter";
 ```
 
 ### 3) Turn on the overlay
-Open the Prefetch Heatmap panel in Devtools; toggle **Enable overlay**. The plugin sets `data-tsr-heatmap` on `<html>`; the reporter annotates links with `data-tsr-prefetch="pending|hit|waste"`; your overlay CSS will color them.
+Open the Prefetch Heatmap panel in Devtools, toggle **Enable overlay**. The plugin sets `data-tsr-heatmap` on `<html>`, the reporter annotates links with `data-tsr-prefetch="pending|hit|waste"`, your overlay CSS will color them.
 
 ---
 
 ## Screenshots
 
-Marketplace card; panel; and overlay colors.
+Marketplace card, panel and overlay colors.
 
 ![Prefetch Heatmap](https://raw.githubusercontent.com/dimitrianoudi/tanstack-prefetch-heatmap/main/assets/prefetch-heatmap-card.png)
 
@@ -147,14 +147,14 @@ tanstack-prefetch-heatmap/
 │  ├─ tsr-prefetch-reporter/                 # @dimano/tsr-prefetch-reporter
 │  └─ ts-devtools-plugin-prefetch-heatmap/   # @dimano/ts-devtools-plugin-prefetch-heatmap
 └─ apps/
-   └─ demo/                                  # Vite app; Dock host; example routes
+   └─ demo/                                  # Vite app, Dock host, example routes
 ```
 
 ---
 
 ## Requirements
 
-- Node 18 or 20; LTS recommended  
+- Node 18 or 20, LTS recommended  
 - pnpm ≥ 9
 
 ---
@@ -164,7 +164,7 @@ tanstack-prefetch-heatmap/
 ```bash
 pnpm i
 pnpm --dir apps/demo dev
-# open the printed URL; usually http://localhost:5173
+# open the printed URL, usually http://localhost:5173
 ```
 
 In the browser, hover the nav links, click to navigate, open the docked Prefetch Heatmap panel, and toggle the overlay.
@@ -176,7 +176,7 @@ In the browser, hover the nav links, click to navigate, open the docked Prefetch
 At the repo root:
 
 ```bash
-pnpm -r build                     # build packages; demo optional if configured
+pnpm -r build                     # build packages, demo optional if configured
 pnpm -r typecheck                 # typecheck everything
 pnpm --dir apps/demo dev          # run the demo
 pnpm --dir apps/demo preview      # preview the production build
@@ -221,10 +221,10 @@ export type { ReporterEvent, PrefetchTrigger } from "./types";
 
 ## Troubleshooting
 
-- **Cannot find module or incorrect exports**: ensure `package.json` points `main` and `exports.import` to real files; rebuild; reinstall.
+- **Cannot find module or incorrect exports**: ensure `package.json` points `main` and `exports.import` to real files, rebuild, reinstall.
 - **TypeScript cannot find `ReporterEvent`**: make sure the plugin re-exports the type from its entry and your consumer uses the published `dist` types.
 - **Overlay does not color links**: confirm `<html data-tsr-heatmap>` is present and links have `data-tsr-prefetch` set by the reporter.
-- **React root warnings**: create and reuse a single `createRoot` per panel container; avoid unmounting synchronously during StrictMode or HMR.
+- **React root warnings**: create and reuse a single `createRoot` per panel container, avoid unmounting synchronously during StrictMode or HMR.
 - **CI frozen lockfile**: in workflows use `pnpm install --no-frozen-lockfile`.
 
 ---
@@ -237,4 +237,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md). PRs and issues welcome.
 
 ## License
 
-MIT © Dimitris Anoudis
+MIT © Dimitri Anoudis
