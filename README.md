@@ -5,18 +5,137 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Build](https://github.com/dimitrianoudi/tanstack-prefetch-heatmap/actions/workflows/ci.yml/badge.svg)
 
+A tiny developer tooling experiment for **TanStack React Router** that visualizes and measures **link prefetch intent**, **hits**, and **waste**. It ships as:
 
-A tiny developer-tooling experiment for **TanStack React Router** that visualizes and measures **link prefetch intent** vs **actual navigation**. It ships as:
+- `@dimano/tsr-prefetch-reporter`: app-side helper that emits prefetch and navigation events, sets DOM data attributes for an optional overlay.
+- `@dimano/ts-devtools-plugin-prefetch-heatmap`: Devtools plugin that aggregates events, shows counters and recent activity, and lets you toggle a color overlay.
+- `apps/demo`: a React app with a small docked host to try the full flow.
 
-- `@dimano/tsr-prefetch-reporter` – app-side helper that emits prefetch + navigation events.
-- `@dimano/ts-devtools-plugin-prefetch-heatmap` – a Devtools panel that aggregates events and shows:
-  - Prefetch count / success
-  - Hit rate (prefetch that led to a click)
-  - Wasted prefetches (expired)
-  - Avg prefetch age & avg TTI
-- `apps/demo` – a React app (Vite) with a docked Devtools host to try it end-to-end.
+**Goal**: help teams tune prefetch strategies and quantify waste versus wins.
 
-> Goal: help teams tune prefetch strategies (hover, intent, viewport) and quantify waste vs wins.
+---
+
+## Using with TanStack Devtools (Marketplace)
+
+### Option A — Marketplace installation
+
+1. Install the reporter in your app:
+   ```bash
+   pnpm add @dimano/tsr-prefetch-reporter
+   ```
+2. Use `TrackedLink` for links you want to observe:
+   ```tsx
+   import { TrackedLink } from "@dimano/tsr-prefetch-reporter";
+
+   <TrackedLink to="/invoices" preload="intent">Invoices</TrackedLink>
+   ```
+3. Open TanStack Devtools in your app; go to **Marketplace → Add to Devtools**; search **Prefetch Heatmap**; add it.
+4. Open the **Prefetch Heatmap** panel; toggle **Enable overlay** to annotate links in page.
+
+The official Devtools host imports the plugin’s **named** export, `registerPrefetchHeatmapPlugin`. No extra wiring is needed.
+
+### Option B — Manual host wiring via `plugins` prop
+
+If you embed Devtools yourself and want to render the panel explicitly:
+
+**`src/main.tsx`**
+```tsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { PrefetchHeatmapPanelHost } from "./PrefetchHeatmapPanelHost";
+
+const root = document.getElementById("root") as HTMLElement;
+
+ReactDOM.createRoot(root).render(
+  <React.StrictMode>
+    <App />
+    <TanStackDevtools
+      config={{ hideUntilHover: true }}
+      plugins={[
+        {
+          name: "Prefetch Heatmap",
+          render: <PrefetchHeatmapPanelHost />,
+        },
+      ]}
+    />
+  </React.StrictMode>
+);
+```
+
+**`src/PrefetchHeatmapPanelHost.tsx`**
+```tsx
+import * as React from "react";
+import registerPrefetchHeatmapPlugin, { type ReporterEvent } from "@dimano/ts-devtools-plugin-prefetch-heatmap";
+
+declare global {
+  interface Window {
+    __TANSTACK_DEVTOOLS_EVENT_CLIENT__?: {
+      emit: (e: ReporterEvent) => void;
+      subscribe: (fn: (e: ReporterEvent) => void) => () => void;
+    };
+  }
+}
+
+export function PrefetchHeatmapPanelHost() {
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (!window.__TANSTACK_DEVTOOLS_EVENT_CLIENT__) {
+      const subs = new Set<(e: ReporterEvent) => void>();
+      window.__TANSTACK_DEVTOOLS_EVENT_CLIENT__ = {
+        emit: (e) => subs.forEach((fn) => fn(e)),
+        subscribe: (fn) => (subs.add(fn), () => subs.delete(fn)),
+      };
+    }
+
+    registerPrefetchHeatmapPlugin({
+      registerPanel: ({ mount }) => { if (ref.current) mount(ref.current); },
+      subscribeToEvents: (_type, fn) => window.__TANSTACK_DEVTOOLS_EVENT_CLIENT__!.subscribe(fn),
+      sendToPage: (msg) => {
+        if (msg.type === "router.overlay.toggle") {
+          document.documentElement.toggleAttribute("data-tsr-heatmap", msg.enabled);
+        }
+      },
+    });
+  }, []);
+
+  return <div ref={ref} style={{ minHeight: 240, overflow: "auto" }} />;
+}
+```
+
+---
+
+## Using it in your app
+
+### 1) Install
+```bash
+pnpm add @tanstack/react-router @dimano/tsr-prefetch-reporter
+```
+
+### 2) Wire a tracked link
+```tsx
+import { TrackedLink } from "@dimano/tsr-prefetch-reporter";
+// normal usage; you can pass any props supported by TanStack Router's <Link />
+
+<nav>
+  <TrackedLink to="/invoices" preload="intent">Invoices</TrackedLink>
+  <TrackedLink to="/customers" preload={true}>Customers</TrackedLink>
+  <TrackedLink to="/reports" preload="intent">Reports</TrackedLink>
+</nav>
+```
+
+### 3) Turn on the overlay
+Open the Prefetch Heatmap panel in Devtools; toggle **Enable overlay**. The plugin sets `data-tsr-heatmap` on `<html>`; the reporter annotates links with `data-tsr-prefetch="pending|hit|waste"`; your overlay CSS will color them.
+
+---
+
+## Screenshots
+
+Marketplace card; panel; and overlay colors.
+
+![Prefetch Heatmap](https://raw.githubusercontent.com/dimitrianoudi/tanstack-prefetch-heatmap/main/assets/prefetch-heatmap-card.png)
 
 ---
 
@@ -28,34 +147,27 @@ tanstack-prefetch-heatmap/
 │  ├─ tsr-prefetch-reporter/                 # @dimano/tsr-prefetch-reporter
 │  └─ ts-devtools-plugin-prefetch-heatmap/   # @dimano/ts-devtools-plugin-prefetch-heatmap
 └─ apps/
-   └─ demo/                                  # Vite app + Devtools dock host
+   └─ demo/                                  # Vite app; Dock host; example routes
 ```
 
 ---
 
 ## Requirements
 
-- Node 18 or 20 (recommended: LTS)
+- Node 18 or 20; LTS recommended  
 - pnpm ≥ 9
 
 ---
 
-## Quickstart (dev)
+## Quickstart for this repo
 
 ```bash
-# from repo root
 pnpm i
 pnpm --dir apps/demo dev
-# open http://localhost:5173
+# open the printed URL; usually http://localhost:5173
 ```
 
-In the browser:
-1. Hover the **Invoices / Customers / Reports** links (triggers prefetch intent).
-2. Click around.
-3. Open the dock at the bottom, select **Prefetch Heatmap**.
-4. Toggle **Enable overlay** to annotate links in-page.
-
-> With the current workspace setup the demo imports package **sources** directly, so rebuilding the libs is not required during dev.
+In the browser, hover the nav links, click to navigate, open the docked Prefetch Heatmap panel, and toggle the overlay.
 
 ---
 
@@ -64,13 +176,13 @@ In the browser:
 At the repo root:
 
 ```bash
-pnpm -r build          # build libs + demo
-pnpm -r typecheck      # typecheck everything
-pnpm --dir apps/demo dev      # run the demo (Vite)
-pnpm --dir apps/demo preview  # preview the production build
+pnpm -r build                     # build packages; demo optional if configured
+pnpm -r typecheck                 # typecheck everything
+pnpm --dir apps/demo dev          # run the demo
+pnpm --dir apps/demo preview      # preview the production build
 ```
 
-Optional convenience (add to root `package.json` if you like):
+Optional convenience:
 
 ```json
 {
@@ -84,106 +196,45 @@ Optional convenience (add to root `package.json` if you like):
 
 ---
 
-## Using it in *your* app
+## Package entry points
 
-### 1) Install
-```bash
-pnpm add @dimano/tsr-prefetch-reporter @dimano/ts-devtools-plugin-prefetch-heatmap @tanstack/react-router
-```
+Both packages export ESM from `dist` when published.
 
-### 2) Wire a tracked link
-```tsx
-import { TrackedLink } from "@dimano/tsr-prefetch-reporter";
-import { useRouter, Link } from "@tanstack/react-router";
-
-function Nav() {
-  const router = useRouter();
-  return (
-    <nav>
-      <Link to="/">Home</Link>
-      <TrackedLink router={router} to="/invoices" preload="intent">Invoices</TrackedLink>
-      <TrackedLink router={router} to="/customers" preload={true}>Customers</TrackedLink>
-    </nav>
-  );
+Example `package.json` fields:
+```json
+{
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
+  },
+  "sideEffects": ["dist/overlay-style.css"]
 }
 ```
 
-### 3) Mount the Devtools panel (host)
-Your devtools host should call the plugin’s default export once:
-
-```tsx
-import registerPrefetchHeatmapPlugin from "@dimano/ts-devtools-plugin-prefetch-heatmap";
-
-registerPrefetchHeatmapPlugin({
-  registerPanel: ({ mount }) => mount(document.getElementById("your-devtools-panel")!),
-  subscribeToEvents: (_type, fn) => {
-    // pipe events from your page -> devtools bus
-    return () => {/* unsubscribe */}
-  },
-  sendToPage: (msg) => {
-    // send commands (e.g. overlay toggle) back into the page if desired
-  }
-});
+The plugin re-exports its public types:
+```ts
+export type { ReporterEvent, PrefetchTrigger } from "./types";
 ```
-
-The demo app includes a minimal host you can reference: `apps/demo/src/devtools/Host.tsx`.
-
----
-
-## Publishing (npm)
-
-> Only needed if you want to publish the packages publicly under `@dimano`.
-
-1. Ensure `package.json` of both packages point to **built** files (recommended for publish):
-
-   ```json
-   {
-     "main": "dist/index.js",
-     "types": "dist/index.d.ts",
-     "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
-     "sideEffects": ["dist/overlay-style.css"]
-   }
-   ```
-
-2. Build & publish:
-
-   ```bash
-   pnpm --filter @dimano/* build
-   cd packages/tsr-prefetch-reporter && npm publish --access public
-   cd ../ts-devtools-plugin-prefetch-heatmap && npm publish --access public
-   ```
-
-3. Keep peer ranges broad for compatibility (suggested):
-
-   ```json
-   "peerDependencies": {
-     "react": ">=18.2.0 <20",
-     "react-dom": ">=18.2.0 <20",
-     "@tanstack/react-router": ">=1.0.0"
-   }
-   ```
 
 ---
 
 ## Troubleshooting
 
-- **Vite: “Failed to resolve entry for package …”**  
-  Ensure each package’s `package.json` “exports” points to real files. In dev we point at `src`; in publish at `dist`.
+- **Cannot find module or incorrect exports**: ensure `package.json` points `main` and `exports.import` to real files; rebuild; reinstall.
+- **TypeScript cannot find `ReporterEvent`**: make sure the plugin re-exports the type from its entry and your consumer uses the published `dist` types.
+- **Overlay does not color links**: confirm `<html data-tsr-heatmap>` is present and links have `data-tsr-prefetch` set by the reporter.
+- **React root warnings**: create and reuse a single `createRoot` per panel container; avoid unmounting synchronously during StrictMode or HMR.
+- **CI frozen lockfile**: in workflows use `pnpm install --no-frozen-lockfile`.
 
-- **TypeScript: package has no exported member `ReporterEvent`**  
-  The plugin re-exports the type at its root. If TS still can’t find it, ensure:
-  - `packages/ts-devtools-plugin-prefetch-heatmap/src/index.tsx` has  
-    `export type { ReporterEvent } from "./types";`
-  - `package.json` `"types"` / `"exports.types"` point to a file that re-exports it (we use `src/index.d.ts`).
+---
 
-- **React DOM “already passed to createRoot” / unmount warnings**  
-  Don’t call `createRoot` more than once per container and don’t unmount synchronously during StrictMode/HMR. The demo host and plugin already cache a `Root` per element.
+## Contributing
 
-- **Parcel + SWC native binding on macOS**  
-  We switched the demo to Vite to avoid SWC native binaries. If you use Parcel elsewhere, either use Babel transformers or clear quarantine flags.
+See [CONTRIBUTING.md](./CONTRIBUTING.md). PRs and issues welcome.
 
 ---
 
 ## License
 
-MIT © Dimano
+MIT © Dimitris Anoudis
