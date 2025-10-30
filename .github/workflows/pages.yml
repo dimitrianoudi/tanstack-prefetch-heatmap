@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -20,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Required for Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -28,11 +29,11 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-
-      - name: Enable Corepack + activate pinned pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.12.1 --activate
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+          run_install: false
 
       - name: Show pnpm version
         run: pnpm -v
@@ -46,6 +47,9 @@ jobs:
       - name: Build demo
         working-directory: apps/demo-marketplace
         run: pnpm build
+
+      - name: List dist
+        run: ls -la apps/demo-marketplace/dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
