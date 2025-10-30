@@ -28,7 +28,6 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-
       - name: Setup pnpm (standalone)
         uses: pnpm/action-setup@v4
         with:
@@ -40,6 +39,7 @@ jobs:
         run: |
           pnpm -v
           which pnpm
+          echo "PATH=$PATH"
 
       - name: Install deps
         run: pnpm install --no-frozen-lockfile
@@ -61,7 +61,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: apps/demo-marketplace/dist
 
   deploy:
     needs: build
