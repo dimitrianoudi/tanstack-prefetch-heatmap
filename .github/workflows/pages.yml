@@ -20,7 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Required for Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -29,14 +28,15 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.12.1
-          run_install: false
 
-      - name: Show pnpm version
-        run: pnpm -v
+      # 👇 Activate pnpm from packageManager via Corepack
+      - name: Enable Corepack & activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.12.1 --activate
+          pnpm -v
+          which pnpm
+          echo "$PATH"
 
       - name: Install deps
         run: pnpm install --no-frozen-lockfile
