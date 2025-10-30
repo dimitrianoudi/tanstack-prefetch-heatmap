@@ -20,7 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Required: config Pages (sets up the site + permissions)
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -30,16 +29,13 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      # Pick ONE pnpm setup approach:
+      - name: Enable Corepack + activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.12.1 --activate
 
-      # A) Match your repo version (you pinned pnpm@10.12.1)
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.12.1
-
-      # OR B) Use Corepack to honor packageManager (comment A if you keep B)
-      # - run: corepack enable
+      - name: Show pnpm version
+        run: pnpm -v
 
       - name: Install deps
         run: pnpm install --no-frozen-lockfile
@@ -48,7 +44,7 @@ jobs:
         run: pnpm -r --filter "./packages/*" build
 
       - name: Build demo
-        working-directory: apps/demo-marketplace   # ← your new demo path
+        working-directory: apps/demo-marketplace
         run: pnpm build
 
       - name: Upload artifact
