@@ -8,5 +8,5 @@ export default defineConfig({
     react(),
     devtools(), // TanStack devtools vite plugin
   ],
-  base: '/tanstack-prefetch-heatmap/',
+  base: '/tanstack-prefetch-heatmap/demo-marketplace/',
 })

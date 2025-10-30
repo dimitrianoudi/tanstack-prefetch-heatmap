@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+
       - name: Setup pnpm (standalone)
         uses: pnpm/action-setup@v4
         with:
@@ -39,7 +40,6 @@ jobs:
         run: |
           pnpm -v
           which pnpm
-          echo "PATH=$PATH"
 
       - name: Install deps
         run: pnpm install --no-frozen-lockfile
@@ -53,11 +53,15 @@ jobs:
 
       - name: List dist
         run: ls -la apps/demo-marketplace/dist
+      - name: Stage site under /demo-marketplace
+        run: |
+          rm -rf site && mkdir -p site/demo-marketplace
+          cp -r apps/demo-marketplace/dist/* site/demo-marketplace/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/demo-marketplace/dist
+          path: site
 
   deploy:
     needs: build
