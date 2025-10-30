@@ -29,14 +29,11 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      # 👇 Activate pnpm from packageManager via Corepack
-      - name: Enable Corepack & activate pinned pnpm
+      - name: Install pnpm globally (fallback)
         run: |
-          corepack enable
-          corepack prepare pnpm@10.12.1 --activate
+          npm i -g pnpm@10.12.1
           pnpm -v
           which pnpm
-          echo "$PATH"
 
       - name: Install deps
         run: pnpm install --no-frozen-lockfile
