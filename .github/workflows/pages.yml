@@ -20,22 +20,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # Required: config Pages (sets up the site + permissions)
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
 
-      - uses: pnpm/action-setup@v4
+      # Pick ONE pnpm setup approach:
+
+      # A) Match your repo version (you pinned pnpm@10.12.1)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10.12.1
 
-      - run: pnpm install --no-frozen-lockfile
+      # OR B) Use Corepack to honor packageManager (comment A if you keep B)
+      # - run: corepack enable
 
-      - run: pnpm -r --filter "./packages/*" build
+      - name: Install deps
+        run: pnpm install --no-frozen-lockfile
 
-      - working-directory: apps/demo-marketplace
+      - name: Build packages
+        run: pnpm -r --filter "./packages/*" build
+
+      - name: Build demo
+        working-directory: apps/demo-marketplace   # ← your new demo path
         run: pnpm build
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: apps/demo-marketplace/dist
 
@@ -43,5 +60,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
